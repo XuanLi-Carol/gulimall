@@ -6,3 +6,5 @@ spring:
 
   application:
     name: gulimall-search
+server:
+  port: 12000

@@ -8,6 +8,8 @@
 
 package com.test.common.utils;
 
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import org.apache.http.HttpStatus;
 
 import java.util.HashMap;
@@ -25,7 +27,38 @@ public class R extends HashMap<String, Object> {
 		put("code", 0);
 		put("msg", "success");
 	}
-	
+
+//	private T data;
+
+	/**
+	 * 解析数据
+	 * 1.@ResponseBody返回类型被封装成了Json格式
+	 * 2.feign接收参数时也会封装成json格式，data对象也被解析成json格式的数据（[集合对象]或{map对象}）
+	 * 3.将data转成json字符串格式，然后再解析成对象
+	 */
+	public <T> T getData(TypeReference<T> type) {
+		Object data = get("data");
+		String jsonString = JSONObject.toJSONString(data);
+		return JSONObject.parseObject(jsonString, type);
+	}
+
+	/**
+	 * 解析数据
+	 */
+	public <T> T getData(String key, TypeReference<T> type) {
+		Object data = get(key);
+		String jsonString = JSONObject.toJSONString(data);
+		return JSONObject.parseObject(jsonString, type);
+	}
+
+	/**
+	 * 封装数据
+	 */
+	public R data(Object data) {
+		return put("data", data);
+	}
+
+
 	public static R error() {
 		return error(HttpStatus.SC_INTERNAL_SERVER_ERROR, "未知异常，请联系管理员");
 	}

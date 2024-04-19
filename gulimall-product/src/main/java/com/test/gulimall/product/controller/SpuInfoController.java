@@ -29,6 +29,16 @@ public class SpuInfoController {
     private SpuInfoService spuInfoService;
 
     /**
+     * /product/spuinfo/{spuId}/up
+     * 商品上架功能
+     * */
+    @PostMapping("/{spuId}/up")
+    public R up(@PathVariable("spuId") Long spuId){
+        spuInfoService.up(spuId);
+        return R.ok();
+    }
+
+    /**
      * 列表
      */
     @GetMapping("/list")

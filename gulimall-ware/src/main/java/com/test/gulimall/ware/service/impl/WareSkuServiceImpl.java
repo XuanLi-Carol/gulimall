@@ -1,5 +1,6 @@
 package com.test.gulimall.ware.service.impl;
 
+import com.test.common.to.SkuHasStockTo;
 import com.test.common.utils.R;
 import com.test.gulimall.ware.feign.ProductFeignService;
 import org.apache.commons.lang.StringUtils;
@@ -8,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -50,6 +53,17 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
         }else{
             wareSkuDao.addStock(skuId,wareId,skuNum);
         }
+    }
+
+    @Override
+    public List<SkuHasStockTo> getSkuHasStock(List<Long> skuIds) {
+        return skuIds.stream().map(skuId -> {
+            SkuHasStockTo skuHasStockTo = new SkuHasStockTo();
+            skuHasStockTo.setSkuId(skuId);
+            Long count = this.baseMapper.getSkuHasStock(skuId);
+            skuHasStockTo.setHasStock(count != null && count > 0);
+            return skuHasStockTo;
+        }).collect(Collectors.toList());
     }
 
     @Override

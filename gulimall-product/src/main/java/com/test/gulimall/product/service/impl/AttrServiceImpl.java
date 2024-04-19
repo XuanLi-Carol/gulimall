@@ -59,6 +59,11 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
     }
 
     @Override
+    public List<Long> listSearchableAttrsByIds(List<Long> attrIds) {
+        return this.baseMapper.listSearchableAttrsByIds(attrIds);
+    }
+
+    @Override
     public PageUtils getNoAttrRelations(Map<String, Object> params, Long attrgoupId) {
         //1,获取当前分组下的分类
         AttrGroupEntity attrGroupEntity = attrGroupDao.selectById(attrgoupId);

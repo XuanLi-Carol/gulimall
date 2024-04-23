@@ -5,39 +5,63 @@ import com.test.common.to.SkuHasStockTo;
 import com.test.common.utils.R;
 import com.test.gulimall.product.service.CategoryService;
 import org.junit.jupiter.api.Test;
+import org.redisson.api.RCountDownLatch;
+import org.redisson.api.RLock;
+import org.redisson.api.RSemaphore;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 @SpringBootTest
 class GulimallProductApplicationTests {
 
-//    @Autowired
-//    OSSClient ossClient;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     @Autowired
-    private CategoryService categoryService;
+    private RedissonClient redissonClient;
 
     @Test
-    public void test(){
-        SkuHasStockTo skuHasStockTo = new SkuHasStockTo();
-        skuHasStockTo.setSkuId(2l);
-        skuHasStockTo.setHasStock(true);
-        List<SkuHasStockTo> list = new ArrayList<>();
-        list.add(skuHasStockTo);
+    public void testRedisson()throws Exception{
+        System.out.println(redissonClient);
+        RLock lock = redissonClient.getLock("lock");
 
-        R data = R.ok().data(list);
+        RSemaphore park = redissonClient.getSemaphore("park");
+        park.trySetPermits(5);
 
-        List<SkuHasStockTo> data1 = data.getData(new TypeReference<List<SkuHasStockTo>>() {});
+        park.acquire();
+        park.release();
 
-        System.out.println("==============");
+        RCountDownLatch door = redissonClient.getCountDownLatch("door");
+        door.trySetCount(5);
+        try {
+            door.await();
+        } catch (InterruptedException e) {
+
+        }
+
+        door.countDown();
     }
 
     @Test
     void contextLoads() throws Exception {
+        ValueOperations<String, String> ops = stringRedisTemplate.opsForValue();
+
+        // 保存数据
+//        ops.set("hello", "world:" + UUID.randomUUID());
+        Boolean setIfAbsent = ops.setIfAbsent("hello2", "world: " + UUID.randomUUID());
+        System.out.println("setIfAbsent result: " + setIfAbsent);
+
+        // 查询数据
+        String hello = ops.get("hello2");
+        System.out.println("hello2：" + hello);
     }
 
 }

@@ -6,6 +6,9 @@ spring:
     username: root
     password: root
     url: jdbc:mysql://192.168.220.10:3306/gulimall_pms
+  redis:
+    host: 192.168.220.10
+    port: 6379
 
   cloud:
     nacos:
@@ -17,6 +20,18 @@ spring:
     allow-circular-references: true
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
+
+  thymeleaf:
+    cache: false
+  # 指定spring cache的类型 spring.cache.type
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000
+#      key-prefix: CACHE_
+      use-key-prefix: true
+      #允许缓存null值， 防止缓存穿透问题
+      cache-null-values: true
 
 mybatis-plus:
   global-config:
@@ -30,4 +45,4 @@ mybatis-plus:
 
 logging:
   level:
-    com.test.gulimall: debug
+    com.test.gulimall: error
